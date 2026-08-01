@@ -1,0 +1,23 @@
+"""
+Model registry — imports all SQLAlchemy models.
+
+CRITICAL: Every model must be imported here.
+Alembic's autogenerate compares the current DB schema against all models
+it can find. If a model is not imported here, Alembic will not detect it
+and will not generate migrations for it.
+
+Add new models to this file as they are created.
+"""
+
+from app.models.base import Base, TimestampedBase
+from app.models.organization import Organization
+from app.models.user import RefreshToken, User, UserRole
+
+__all__ = [
+    "Base",
+    "TimestampedBase",
+    "Organization",
+    "User",
+    "UserRole",
+    "RefreshToken",
+]

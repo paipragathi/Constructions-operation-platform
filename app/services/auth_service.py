@@ -144,7 +144,7 @@ class AuthService:
     async def get_me(self, user_id_str: str) -> UserMeResponse:
         from uuid import UUID
         user = await self._session.get(User, UUID(user_id_str))
-        if not user:
+        if not user or user.is_deleted:
             raise NotFoundError(resource="user", identifier=user_id_str)
         return UserMeResponse(
             id=str(user.id),

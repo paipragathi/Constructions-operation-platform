@@ -153,3 +153,15 @@ async def admin_user(db: AsyncSession, org: Any) -> Any:
     await db.flush()
     await db.refresh(user)
     return user
+
+
+@pytest_asyncio.fixture
+async def auth_headers(client: AsyncClient, admin_user: Any) -> dict[str, str]:
+    """Return Authorization headers for the pre-created admin user."""
+    resp = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "admin@test.com", "password": "Test1234!"},
+    )
+    assert resp.status_code == 200, f"Login failed: {resp.text}"
+    token = resp.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}

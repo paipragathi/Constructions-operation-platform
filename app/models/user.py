@@ -19,7 +19,7 @@ be individually revoked (logout, security incident, admin action).
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, func, text
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, String, func, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -41,8 +41,9 @@ class UserRole:
 
 class User(Base):
     """
-    User does NOT inherit TimestampedBase — it has no organization_id FK
-    on itself (it IS the org member). organization_id here is a direct FK.
+    User does NOT inherit TimestampedBase — it IS the org member, not a
+    business entity owned by the org. But it carries the same soft-delete
+    and audit columns for consistency across the codebase.
     """
 
     __tablename__ = "users"
@@ -64,6 +65,8 @@ class User(Base):
     email: Mapped[str] = mapped_column(
         String(254),
         nullable=False,
+        unique=True,
+        index=True,
         comment="Unique within the platform (not per-org) — used for login",
     )
 
@@ -79,6 +82,7 @@ class User(Base):
         String(50),
         nullable=False,
         default=UserRole.SITE_ENGINEER,
+        index=True,
         comment="One of UserRole constants",
     )
 
@@ -96,6 +100,7 @@ class User(Base):
         nullable=True,
     )
 
+    # ── Audit columns (mirrors TimestampedBase for cross-codebase consistency) ──
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
@@ -108,6 +113,47 @@ class User(Base):
         server_default=func.now(),
         onupdate=func.now(),
     )
+
+    created_by: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        nullable=True,
+        comment="User ID of the admin who created this account (None for first admin)",
+    )
+
+    updated_by: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        nullable=True,
+    )
+
+    # ── Soft delete ───────────────────────────────────────────────────────────
+    is_deleted: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default=text("false"),
+        index=True,
+    )
+
+    deleted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    deleted_by: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        nullable=True,
+    )
+
+    __table_args__ = (
+        Index("ix_users_org_active", "organization_id", "is_active"),
+    )
+
+    def soft_delete(self, deleted_by_id: uuid.UUID) -> None:
+        from datetime import timezone
+        self.is_deleted = True
+        self.deleted_at = datetime.now(timezone.utc)
+        self.deleted_by = deleted_by_id
+        self.is_active = False
 
     # ── Relationships ─────────────────────────────────────────────────────────
     organization: Mapped["Organization"] = relationship(  # type: ignore[name-defined]  # noqa: F821

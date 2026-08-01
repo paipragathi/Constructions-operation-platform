@@ -23,6 +23,8 @@ that references the old one and explains what changed and why.
 | [ADR-006](ADR-006-jwt-authentication.md) | JWT access tokens + opaque refresh tokens | Accepted |
 | [ADR-007](ADR-007-repository-pattern.md) | Repository pattern for data access | Accepted |
 | [ADR-008](ADR-008-service-layer.md) | Service layer for business logic | Accepted |
+| [ADR-009](ADR-009-invitation-flow.md) | Token-based invitation flow | Accepted |
+| [ADR-010](ADR-010-project-status-machine.md) | Project status state machine | Accepted |
 
 ---
 

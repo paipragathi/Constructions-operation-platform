@@ -10,13 +10,19 @@ Add new models to this file as they are created.
 """
 
 from app.models.base import Base, TimestampedBase
+from app.models.invitation import Invitation
 from app.models.organization import Organization
+from app.models.project import Project, ProjectStatus, Site
 from app.models.user import RefreshToken, User, UserRole
 
 __all__ = [
     "Base",
     "TimestampedBase",
+    "Invitation",
     "Organization",
+    "Project",
+    "ProjectStatus",
+    "Site",
     "User",
     "UserRole",
     "RefreshToken",

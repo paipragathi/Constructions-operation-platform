@@ -20,7 +20,10 @@ class UserRepository(BaseRepository[User]):
 
     async def get_by_email(self, email: str) -> User | None:
         result = await self.session.execute(
-            select(User).where(User.email == email.lower())
+            select(User).where(
+                User.email == email.lower(),
+                User.is_deleted.is_(False),
+            )
         )
         return result.scalar_one_or_none()
 
@@ -29,13 +32,17 @@ class UserRepository(BaseRepository[User]):
             select(User).where(
                 User.email == email.lower(),
                 User.is_active.is_(True),
+                User.is_deleted.is_(False),
             )
         )
         return result.scalar_one_or_none()
 
     async def email_exists(self, email: str) -> bool:
         result = await self.session.execute(
-            select(User.id).where(User.email == email.lower())
+            select(User.id).where(
+                User.email == email.lower(),
+                User.is_deleted.is_(False),
+            )
         )
         return result.scalar_one_or_none() is not None
 

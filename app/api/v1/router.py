@@ -1,13 +1,10 @@
-"""
-Aggregate router for API v1.
-
-All feature routers are mounted here. main.py includes this single router
-under the /api/v1 prefix so the prefix is declared in exactly one place.
-"""
-
 from fastapi import APIRouter
 
-from app.api.v1 import auth
+from app.api.v1 import auth, invitations, organizations, projects, users
 
 router = APIRouter()
 router.include_router(auth.router)
+router.include_router(organizations.router)
+router.include_router(users.router)
+router.include_router(invitations.router)
+router.include_router(projects.router)

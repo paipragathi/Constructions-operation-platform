@@ -14,6 +14,7 @@ from app.models.invitation import Invitation
 from app.models.organization import Organization
 from app.models.project import Project, ProjectStatus, Site
 from app.models.user import RefreshToken, User, UserRole
+from app.models.worker import DocumentType, SkillLevel, Worker, WorkerDocument, WorkerTrade
 
 __all__ = [
     "Base",
@@ -26,4 +27,9 @@ __all__ = [
     "User",
     "UserRole",
     "RefreshToken",
+    "Worker",
+    "WorkerDocument",
+    "WorkerTrade",
+    "SkillLevel",
+    "DocumentType",
 ]
